@@ -219,6 +219,32 @@ a{text-decoration:none;color:inherit;}
 .footer-legal{display:flex;gap:12px;flex-wrap:wrap;}
 .footer-legal a{font-size:11px;color:var(--gray-500);transition:color 0.12s;}
 .footer-legal a:hover{color:white;}
+/* PRACTICE PREP SCREEN */
+.practice-prep{background:linear-gradient(160deg,#0D0D0D 0%,#1c0808 60%,#0D0D0D 100%);border-radius:14px;padding:28px 20px 24px;text-align:center;border:1px solid rgba(204,31,31,0.2);}
+.prep-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(204,31,31,0.15);border:1px solid rgba(204,31,31,0.4);border-radius:100px;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ff6b6b;margin-bottom:16px;}
+.prep-icon{font-size:44px;margin-bottom:10px;line-height:1;}
+.prep-title{font-family:var(--font-display);font-size:22px;font-weight:800;color:white;margin-bottom:8px;line-height:1.2;}
+.prep-sub{font-size:14px;color:rgba(255,255,255,0.55);margin-bottom:20px;line-height:1.65;}
+.prep-divider{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.prep-divider::before,.prep-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.1);}
+.prep-divider-text{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.prep-checklist{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;text-align:left;}
+.prep-check-item{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 14px;font-size:14px;color:rgba(255,255,255,0.8);transition:border-color 0.2s;}
+.prep-check-item.ticked{border-color:rgba(22,163,74,0.4);background:rgba(22,163,74,0.07);}
+.prep-check-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center;}
+.prep-check-text{flex:1;line-height:1.4;}
+.prep-check-text strong{color:white;}
+.prep-tick{font-size:14px;color:#4ade80;flex-shrink:0;opacity:0;transition:opacity 0.3s;}
+.prep-check-item.ticked .prep-tick{opacity:1;}
+.prep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px;}
+.prep-stat{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 8px;}
+.prep-stat-val{font-family:var(--font-display);font-size:22px;font-weight:800;color:white;line-height:1;}
+.prep-stat-lbl{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;line-height:1.3;}
+.prep-begin-btn{width:100%;padding:16px;border:none;border-radius:10px;background:var(--red);color:white;font-size:16px;font-weight:800;font-family:var(--font-body);cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;margin-bottom:10px;position:relative;overflow:hidden;}
+.prep-begin-btn:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(204,31,31,0.45);}
+.prep-begin-btn:active{transform:translateY(0);}
+.prep-begin-btn.locked{background:#444;cursor:default;transform:none;box-shadow:none;}
+.prep-note{font-size:12px;color:rgba(255,255,255,0.3);line-height:1.5;}
 /* STICKY WA */
 .wa-sticky{position:fixed;bottom:20px;right:16px;z-index:200;opacity:0;pointer-events:none;transition:opacity 0.3s,transform 0.3s;transform:translateY(10px);}
 .wa-sticky.show{opacity:1;pointer-events:all;transform:translateY(0);}
@@ -396,8 +422,22 @@ a{text-decoration:none;color:inherit;}
   <!-- PRACTICE MODE -->
   <div id="practiceMode">
     <div class="practice-wrap">
+      <!-- PREP SCREEN — shown first when Practice Mode is selected -->
+      <div class="practice-prep" id="practicePrep">
+        <div class="prep-icon">📝</div>
+        <h3 class="prep-title">Sit with a Pen &amp; Paper</h3>
+        <p class="prep-sub">Each word will be shown for <strong style="color:white;">15 seconds</strong> — exactly like the real SSB. Write one positive sentence per word on your copy before time runs out.</p>
+        <div class="prep-stats">
+          <div class="prep-stat"><div class="prep-stat-val">15</div><div class="prep-stat-lbl">sec per word</div></div>
+          <div class="prep-stat"><div class="prep-stat-val">85</div><div class="prep-stat-lbl">total words</div></div>
+          <div class="prep-stat"><div class="prep-stat-val">6–8</div><div class="prep-stat-lbl">word sentence</div></div>
+          <div class="prep-stat"><div class="prep-stat-val">+ve</div><div class="prep-stat-lbl">tone only</div></div>
+        </div>
+        <button class="prep-begin-btn" id="prepBeginBtn" onclick="beginSimulation()">✅ I'm Ready — Begin Simulation →</button>
+        <p class="prep-note">No pause. No rewind. Just like the real SSB test hall.</p>
+      </div>
       <!-- IDLE STATE -->
-      <div class="practice-idle" id="practiceIdle">
+      <div class="practice-idle" id="practiceIdle" style="display:none;">
         <div style="font-size:40px;margin-bottom:12px;">⏱</div>
         <h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--black);margin-bottom:10px;">Real SSB WAT Simulator</h3>
         <p>A word will flash on screen for <strong>15 seconds</strong>. Type your sentence before the timer runs out. After time's up, compare your answer with The Cavalier's expert example.</p>
@@ -786,6 +826,12 @@ const WAT = [
   {w:'Fail',s:'Failure gives the courage to rise and go further.',c:'negative'}
 ];
 
+// ── PREP SCREEN LOGIC ────────────────────────────────────────────
+function beginSimulation(){
+  document.getElementById('practicePrep').style.display = 'none';
+  startPractice();
+}
+
 // ── FLIP WORDS ANIMATION ─────────────────────────────────────────
 const FLIP_WORDS = ['Courage','Duty','Nation','Leader','Strength','Honour','Team','Victory','Justice','Faith','Service','Integrity'];
 let flipIdx = 0;
@@ -1012,7 +1058,7 @@ function finishPractice(){
 
 function restartPractice(){
   document.getElementById('pracFinish').style.display = 'none';
-  document.getElementById('practiceIdle').style.display = 'block';
+  document.getElementById('practicePrep').style.display = 'block';
 }
 
 // ── STICKY WA ────────────────────────────────────────────────────
