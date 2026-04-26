@@ -24,6 +24,12 @@ GitHub Pages builds are treated as preview builds and include `noindex` protecti
 CAVALIER_ENV=production node scripts/build.mjs
 ```
 
+For GitHub project-page previews, use:
+
+```sh
+CAVALIER_ENV=preview CAVALIER_BASE_PATH=/cavalier-site node scripts/build.mjs
+```
+
 ## Data Files
 
 - `data/nda-topics.json`

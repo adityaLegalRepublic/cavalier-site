@@ -25,6 +25,7 @@ jobs:
       - run: node scripts/build.mjs
         env:
           CAVALIER_ENV: preview
+          CAVALIER_BASE_PATH: /cavalier-site
       - run: node scripts/check-urls.mjs
       - uses: actions/upload-pages-artifact@v3
         with:

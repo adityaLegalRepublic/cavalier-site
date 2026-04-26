@@ -5,6 +5,8 @@ const root = process.cwd();
 const dist = path.join(root, "dist");
 const config = JSON.parse(await readFile(path.join(root, "site.config.json"), "utf8"));
 const isProduction = process.env.CAVALIER_ENV === "production";
+const basePath = process.env.CAVALIER_BASE_PATH || "";
+const homePageHtml = await readOptionalFile(path.join(root, "content/pages/home.html"));
 
 const existingPages = [
   ["/", "Cavalier"],
@@ -126,7 +128,11 @@ await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
 for (const [url, title] of [...allPages, ...generatedUrls]) {
-  await writePage(url, pageHtml({ url, title, body: listingFor(url) }));
+  if (url === "/" && homePageHtml) {
+    await writePage(url, prepareCustomHtml(homePageHtml, url));
+  } else {
+    await writePage(url, pageHtml({ url, title, body: listingFor(url) }));
+  }
 }
 
 await writeFile(path.join(dist, "robots.txt"), robotsTxt());
@@ -148,7 +154,7 @@ function listingFor(url) {
 
 function listItems(items, label = "title") {
   if (!items.length) return `<p>New content will appear here after publishing.</p>`;
-  return `<ul>${items.map((item) => `<li><a href="${escapeHtml(item.url)}">${escapeHtml(item[label] || item.title)}</a></li>`).join("")}</ul>`;
+  return `<ul>${items.map((item) => `<li><a href="${escapeHtml(publicPath(item.url))}">${escapeHtml(item[label] || item.title)}</a></li>`).join("")}</ul>`;
 }
 
 async function writePage(url, html) {
@@ -184,11 +190,11 @@ function pageHtml({ url, title, body }) {
   <header>
     <strong>${escapeHtml(config.siteName)}</strong>
     <nav aria-label="Primary">
-      <a href="/">Home</a>
-      <a href="/best-nda-coaching">NDA</a>
-      <a href="/best-cds-coaching">CDS</a>
-      <a href="/ssb-interview-coaching">SSB</a>
-      <a href="/contact-us">Contact</a>
+      <a href="${publicPath("/")}">Home</a>
+      <a href="${publicPath("/best-nda-coaching")}">NDA</a>
+      <a href="${publicPath("/best-cds-coaching")}">CDS</a>
+      <a href="${publicPath("/ssb-interview-coaching")}">SSB</a>
+      <a href="${publicPath("/contact-us")}">Contact</a>
     </nav>
   </header>
   <main>
@@ -198,6 +204,21 @@ function pageHtml({ url, title, body }) {
   <footer>Copyright ${new Date().getFullYear()} Cavalier</footer>
 </body>
 </html>`;
+}
+
+function prepareCustomHtml(html, url) {
+  const canonical = `${config.siteUrl}${url === "/" ? "" : url}`;
+  let prepared = html;
+  if (!prepared.includes('rel="canonical"')) {
+    prepared = prepared.replace("</title>", `</title>\n  <link rel="canonical" href="${canonical}">`);
+  }
+  if (!isProduction && !prepared.includes('name="robots"')) {
+    prepared = prepared.replace("</title>", '</title>\n  <meta name="robots" content="noindex, nofollow">');
+  }
+  if (isProduction) {
+    prepared = prepared.replace(/\s*<meta name="robots" content="noindex, nofollow">\n?/g, "\n");
+  }
+  return rewriteInternalRootPaths(prepared);
 }
 
 function sitemapXml(urls) {
@@ -214,10 +235,32 @@ function robotsTxt() {
   return `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`;
 }
 
+function publicPath(url) {
+  if (!basePath || !url.startsWith("/")) return url;
+  return url === "/" ? `${basePath}/` : `${basePath}${url}`;
+}
+
+function rewriteInternalRootPaths(html) {
+  if (!basePath) return html;
+  return html.replace(/\b(href|src)="\/(?!\/)([^"#?]*)([^"]*)"/g, (_match, attr, pathname, suffix) => {
+    const pathValue = pathname ? `/${pathname}` : "/";
+    return `${attr}="${publicPath(pathValue)}${suffix}"`;
+  });
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+async function readOptionalFile(filePath) {
+  try {
+    return await readFile(filePath, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return "";
+    throw error;
+  }
 }
