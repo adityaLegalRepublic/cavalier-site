@@ -170,7 +170,7 @@ a{text-decoration:none;color:inherit;}
 .exam-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;border-left:4px solid var(--border);transition:box-shadow 0.15s;}
 .exam-card.ec-eligible{border-left-color:#16A34A;}
 .exam-card.ec-borderline{border-left-color:#D97706;}
-.exam-card.ec-ineligible{border-left-color:var(--border);opacity:0.6;}
+.exam-card.ec-ineligible{border-left-color:#fca5a5;opacity:0.85;}
 .exam-card.ec-edu{border-left-color:#2563EB;}
 .ec-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .ic-eli{background:rgba(22,163,74,0.1);}
@@ -180,11 +180,11 @@ a{text-decoration:none;color:inherit;}
 .ec-body{flex:1;min-width:0;}
 .ec-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:3px;}
 .ec-name{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--black);line-height:1.2;}
-.ec-pill{flex-shrink:0;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.3px;white-space:nowrap;}
-.p-eli{background:rgba(22,163,74,0.1);color:#15803D;}
-.p-bor{background:rgba(217,119,6,0.1);color:#B45309;}
-.p-ine{background:var(--gray-100);color:var(--gray-500);}
-.p-edu{background:rgba(37,99,235,0.08);color:#1D4ED8;}
+.ec-pill{flex-shrink:0;padding:6px 14px;border-radius:100px;font-size:13px;font-weight:700;letter-spacing:0.2px;white-space:nowrap;border:1.5px solid transparent;}
+.p-eli{background:#dcfce7;color:#15803D;border-color:#86efac;}
+.p-bor{background:#fef3c7;color:#92400E;border-color:#fcd34d;}
+.p-ine{background:#fee2e2;color:#b91c1c;border-color:#fca5a5;}
+.p-edu{background:#dbeafe;color:#1D4ED8;border-color:#93c5fd;}
 .ec-full{font-size:14px;color:var(--gray-500);margin-bottom:8px;}
 .ec-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px;}
 .ec-meta-item{font-size:13px;color:var(--gray-700);display:flex;align-items:center;gap:3px;}
@@ -496,17 +496,17 @@ body{font-size:16px;}
             <div class="exam-card ec-eligible" style="opacity:0.9;">
               <div class="ec-icon ic-eli" style="background:rgba(22,163,74,0.1);">🎖️</div>
               <div class="ec-body"><div style="height:16px;background:#e5e7eb;border-radius:3px;width:60%;margin-bottom:8px;"></div><div style="height:11px;background:#f3f4f6;border-radius:3px;width:85%;margin-bottom:6px;"></div><div style="height:11px;background:#f3f4f6;border-radius:3px;width:70%;"></div></div>
-              <div class="ec-pill p-eli" style="white-space:nowrap;">✓ Eligible</div>
+              <div class="ec-pill p-eli">✓ Eligible Now</div>
             </div>
             <div class="exam-card ec-borderline" style="opacity:0.9;margin-top:0;">
               <div class="ec-icon ic-bor">✈️</div>
               <div class="ec-body"><div style="height:16px;background:#e5e7eb;border-radius:3px;width:55%;margin-bottom:8px;"></div><div style="height:11px;background:#f3f4f6;border-radius:3px;width:80%;margin-bottom:6px;"></div><div style="height:11px;background:#f3f4f6;border-radius:3px;width:65%;"></div></div>
-              <div class="ec-pill p-bor">⚠️ Soon</div>
+              <div class="ec-pill p-bor">⚠️ Closing Soon</div>
             </div>
-            <div class="exam-card" style="opacity:0.5;margin-top:0;">
+            <div class="exam-card ec-ineligible" style="margin-top:0;">
               <div class="ec-icon ic-ine">🛡️</div>
               <div class="ec-body"><div style="height:16px;background:#e5e7eb;border-radius:3px;width:50%;margin-bottom:8px;"></div><div style="height:11px;background:#f3f4f6;border-radius:3px;width:75%;"></div></div>
-              <div class="ec-pill p-ine">✗ Not Yet</div>
+              <div class="ec-pill p-ine">✖ Age limit exceeded</div>
             </div>
           </div>
         </div>
@@ -786,14 +786,14 @@ function eligibility(exam, ageY, ageM, gender, edu) {
   const minM = Math.floor(exam.minAge) * 12 + Math.round((exam.minAge % 1) * 12);
   const maxM = Math.floor(exam.maxAge) * 12 + Math.round((exam.maxAge % 1) * 12);
   if (userEduVal < minEduVal) {
-    if (totalM <= maxM) return { status:'edu', text:'Need to graduate first' };
-    else return { status:'too_old', text:'Age limit exceeded' };
+    if (totalM <= maxM) return { status:'edu', text:'🎓 Graduate first' };
+    else return { status:'too_old', text:'✖ Age limit exceeded' };
   }
   if (totalM < minM) {
     const left = minM - totalM;
-    return { status:'too_young', text:`Not yet — ${left} month${left>1?'s':''} to go` };
+    return { status:'too_young', text:`⏳ ${left} month${left>1?'s':''} too young` };
   }
-  if (totalM > maxM) return { status:'too_old', text:'Age limit exceeded' };
+  if (totalM > maxM) return { status:'too_old', text:'✖ Age limit exceeded' };
   const mLeft = maxM - totalM;
   if (mLeft <= 6) return { status:'borderline', text:`⚠️ ${mLeft} month${mLeft!==1?'s':''} left`, mLeft };
   return { status:'eligible', text:'✓ Eligible Now', mLeft };
