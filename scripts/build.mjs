@@ -4,6 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const dist = path.join(root, "dist");
 const config = JSON.parse(await readFile(path.join(root, "site.config.json"), "utf8"));
+const isProduction = process.env.CAVALIER_ENV === "production";
 
 const existingPages = [
   ["/", "Cavalier"],
@@ -128,7 +129,7 @@ for (const [url, title] of [...allPages, ...generatedUrls]) {
   await writePage(url, pageHtml({ url, title, body: listingFor(url) }));
 }
 
-await writeFile(path.join(dist, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`);
+await writeFile(path.join(dist, "robots.txt"), robotsTxt());
 await writeFile(path.join(dist, "sitemap.xml"), sitemapXml([...allPages, ...generatedUrls].map(([url]) => url)));
 
 function listingFor(url) {
@@ -166,6 +167,7 @@ function pageHtml({ url, title, body }) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)} | ${escapeHtml(config.siteName)}</title>
   <meta name="description" content="${escapeHtml(config.description)}">
+  ${isProduction ? "" : '<meta name="robots" content="noindex, nofollow">'}
   <link rel="canonical" href="${canonical}">
   <style>
     body{font-family:Arial,sans-serif;margin:0;color:#172033;background:#fff}
@@ -205,6 +207,11 @@ function sitemapXml(urls) {
 ${unique.map((url) => `  <url><loc>${config.siteUrl}${url === "/" ? "" : url}</loc></url>`).join("\n")}
 </urlset>
 `;
+}
+
+function robotsTxt() {
+  if (!isProduction) return "User-agent: *\nDisallow: /\n";
+  return `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`;
 }
 
 function escapeHtml(value) {

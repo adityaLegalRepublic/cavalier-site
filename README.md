@@ -18,6 +18,12 @@ node scripts/check-urls.mjs
 
 The static site is generated into `dist/`.
 
+GitHub Pages builds are treated as preview builds and include `noindex` protection. The final Cloudflare production build should run with:
+
+```sh
+CAVALIER_ENV=production node scripts/build.mjs
+```
+
 ## Data Files
 
 - `data/nda-topics.json`

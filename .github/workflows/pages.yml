@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/build.mjs
+        env:
+          CAVALIER_ENV: preview
       - run: node scripts/check-urls.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
