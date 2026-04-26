@@ -6,7 +6,6 @@ const dist = path.join(root, "dist");
 const config = JSON.parse(await readFile(path.join(root, "site.config.json"), "utf8"));
 const isProduction = process.env.CAVALIER_ENV === "production";
 const basePath = process.env.CAVALIER_BASE_PATH || "";
-const homePageHtml = await readOptionalFile(path.join(root, "content/pages/home.html"));
 
 const existingPages = [
   ["/", "Cavalier"],
@@ -128,8 +127,9 @@ await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 
 for (const [url, title] of [...allPages, ...generatedUrls]) {
-  if (url === "/" && homePageHtml) {
-    await writePage(url, prepareCustomHtml(homePageHtml, url));
+  const customHtml = await customHtmlForUrl(url);
+  if (customHtml) {
+    await writePage(url, prepareCustomHtml(customHtml, url));
   } else {
     await writePage(url, pageHtml({ url, title, body: listingFor(url) }));
   }
@@ -263,4 +263,9 @@ async function readOptionalFile(filePath) {
     if (error.code === "ENOENT") return "";
     throw error;
   }
+}
+
+async function customHtmlForUrl(url) {
+  const filename = url === "/" ? "home.html" : `${url.slice(1)}.html`;
+  return readOptionalFile(path.join(root, "content/pages", filename));
 }
