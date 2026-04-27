@@ -50,6 +50,7 @@ const existingPages = [
   ["/psychological-test", "Psychological Test"],
   ["/ppdt", "PPDT"],
   ["/thematic-apperception-test", "Thematic Apperception Test"],
+  ["/tat-practice-pics-ssb", "TAT Practice Pictures SSB"],
   ["/situation-reaction-test-srt", "Situation Reaction Test"],
   ["/wat-examples-for-ssb-interviews", "WAT Examples for SSB Interviews"],
   ["/self-discription-sd", "Self Description SD"],
