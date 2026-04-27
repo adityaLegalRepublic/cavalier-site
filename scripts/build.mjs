@@ -68,7 +68,6 @@ const existingPages = [
   ["/snake-race-in-ssb", "Snake Race in SSB"],
   ["/group-discussion-ssb", "Group Discussion SSB"],
   ["/group-planning-exercise-gpe-ssb", "Group Planning Exercise GPE SSB"],
-  ["/student-testimonials", "Student Testimonials"],
   ["/success-stories", "Success Stories"],
   ["/the-cavalier-outdoors", "The Cavalier Outdoors"],
   ["/nda-current-affairs", "NDA Current Affairs"],
